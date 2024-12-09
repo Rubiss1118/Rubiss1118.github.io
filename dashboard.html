@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Márgenes de Ganancia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .dashboard {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .profit-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .profit-table th, .profit-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        .profit-table th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .high-margin {
+            color: green;
+            font-weight: bold;
+        }
+        .low-margin {
+            color: red;
+            font-weight: bold;
+        }
+        .order-form {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .order-form input {
+            padding: 5px;
+            margin: 10px;
+            width: 60px;
+        }
+        .order-form button {
+            padding: 8px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Márgenes de Ganancia</h1>
+        
+        <!-- Formulario para seleccionar la comida y cantidad vendida -->
+        <div class="order-form">
+            <h3>Selecciona la cantidad vendida de cada producto:</h3>
+            <form id="order-form">
+                <label for="tlayuda-quantity">Tlayudas: </label>
+                <input type="number" id="tlayuda-quantity" name="tlayuda-quantity" min="0" value="0">
+                
+                <label for="memela-quantity">Memelas: </label>
+                <input type="number" id="memela-quantity" name="memela-quantity" min="0" value="0">
+                
+                <label for="hamburguesa-quantity">Hamburguesas: </label>
+                <input type="number" id="hamburguesa-quantity" name="hamburguesa-quantity" min="0" value="0">
+                
+                <label for="pizza-quantity">Pizzas: </label>
+                <input type="number" id="pizza-quantity" name="pizza-quantity" min="0" value="0">
+                
+                <button type="submit">Actualizar Ventas</button>
+            </form>
+        </div>
+        
+        <!-- Tabla de márgenes de ganancia -->
+        <table class="profit-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad Vendida</th>
+                    <th>Ventas Totales</th>
+                    <th>Costo</th>
+                    <th>Margen de Ganancia</th>
+                    <th>Porcentaje de Margen</th>
+                </tr>
+            </thead>
+            <tbody id="profit-body">
+                <tr>
+                    <td>Tlayuda</td>
+                    <td><span id="tlayuda-quantity-display">0</span></td>
+                    <td id="tlayuda-sales">$0.00</td>
+                    <td id="tlayuda-cost">$120.00</td>
+                    <td id="tlayuda-margin">$0.00</td>
+                    <td id="tlayuda-margin-percentage">0%</td>
+                </tr>
+                <tr>
+                    <td>Memelas</td>
+                    <td><span id="memela-quantity-display">0</span></td>
+                    <td id="memela-sales">$0.00</td>
+                    <td id="memela-cost">$35.00</td>
+                    <td id="memela-margin">$0.00</td>
+                    <td id="memela-margin-percentage">0%</td>
+                </tr>
+                <tr>
+                    <td>Hamburguesa</td>
+                    <td><span id="hamburguesa-quantity-display">0</span></td>
+                    <td id="hamburguesa-sales">$0.00</td>
+                    <td id="hamburguesa-cost">$150.00</td>
+                    <td id="hamburguesa-margin">$0.00</td>
+                    <td id="hamburguesa-margin-percentage">0%</td>
+                </tr>
+                <tr>
+                    <td>Pizza Especial</td>
+                    <td><span id="pizza-quantity-display">0</span></td>
+                    <td id="pizza-sales">$0.00</td>
+                    <td id="pizza-cost">$200.00</td>
+                    <td id="pizza-margin">$0.00</td>
+                    <td id="pizza-margin-percentage">0%</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td><strong>$0.00</strong></td>
+                    <td><strong>$0.00</strong></td>
+                    <td><strong>0%</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        // Precios base de los productos
+        const tlayudaPrice = 140.0;  // Precio actualizado de la tlayuda
+        const memelaPrice = 45.0;    // Precio actualizado de la memela
+        const hamburguesaPrice = 175.0;  // Precio actualizado de la hamburguesa
+        const pizzaPrice = 230.0;        // Precio actualizado de la pizza
+        
+        // Costos base de los productos
+        let tlayudaCost = 120.0;   // Costo base de la tlayuda
+        let memelaCost = 35.0;     // Costo base de la memela
+        let hamburguesaCost = 150.0;   // Costo base de la hamburguesa
+        let pizzaCost = 200.0;         // Costo base de la pizza
+        
+        // Inicializamos las ventas totales de cada comida en cero
+        let tlayudaSales = 0;
+        let memelaSales = 0;
+        let hamburguesaSales = 0;
+        let pizzaSales = 0;
+        
+        // Función para ajustar el costo dependiendo de la cantidad vendida
+        function adjustCost(quantity, baseCost) {
+            return baseCost * quantity;
+        }
+        
+        // Función para calcular y actualizar el margen de ganancia y porcentaje
+        function updateMargins() {
+            // Ajustar el costo dependiendo de la cantidad vendida
+            tlayudaCost = adjustCost(tlayudaSales / tlayudaPrice, 120.0);  // Dividido por precio para obtener la cantidad
+            memelaCost = adjustCost(memelaSales / memelaPrice, 35.0);
+            hamburguesaCost = adjustCost(hamburguesaSales / hamburguesaPrice, 150.0);
+            pizzaCost = adjustCost(pizzaSales / pizzaPrice, 200.0);
+        
+            // Tlayuda
+            let tlayudaMargin = tlayudaSales - tlayudaCost; // Margen de ganancia
+            let tlayudaMarginPercentage = (tlayudaMargin / tlayudaCost) * 100; // Porcentaje de margen
+        
+            // Memelas
+            let memelaMargin = memelaSales - memelaCost; // Margen de ganancia
+            let memelaMarginPercentage = (memelaMargin / memelaCost) * 100; // Porcentaje de margen
+        
+            // Hamburguesa
+            let hamburguesaMargin = hamburguesaSales - hamburguesaCost; // Margen de ganancia
+            let hamburguesaMarginPercentage = (hamburguesaMargin / hamburguesaCost) * 100; // Porcentaje de margen
+        
+            // Pizza
+            let pizzaMargin = pizzaSales - pizzaCost; // Margen de ganancia
+            let pizzaMarginPercentage = (pizzaMargin / pizzaCost) * 100; // Porcentaje de margen
+        
+            // Actualizar la tabla con los márgenes y porcentajes calculados
+            document.getElementById('tlayuda-margin').textContent = `$${tlayudaMargin.toFixed(2)}`;
+            document.getElementById('tlayuda-margin-percentage').textContent = `${tlayudaMarginPercentage.toFixed(2)}%`;
+        
+            document.getElementById('memela-margin').textContent = `$${memelaMargin.toFixed(2)}`;
+            document.getElementById('memela-margin-percentage').textContent = `${memelaMarginPercentage.toFixed(2)}%`;
+        
+            document.getElementById('hamburguesa-margin').textContent = `$${hamburguesaMargin.toFixed(2)}`;
+            document.getElementById('hamburguesa-margin-percentage').textContent = `${hamburguesaMarginPercentage.toFixed(2)}%`;
+        
+            document.getElementById('pizza-margin').textContent = `$${pizzaMargin.toFixed(2)}`;
+            document.getElementById('pizza-margin-percentage').textContent = `${pizzaMarginPercentage.toFixed(2)}%`;
+        }
+        
+        // Función para actualizar la tabla de ventas
+        function updateTable() {
+            // Actualizamos las ventas de cada comida
+            document.getElementById('tlayuda-sales').textContent = `$${tlayudaSales.toFixed(2)}`;
+            document.getElementById('memela-sales').textContent = `$${memelaSales.toFixed(2)}`;
+            document.getElementById('hamburguesa-sales').textContent = `$${hamburguesaSales.toFixed(2)}`;
+            document.getElementById('pizza-sales').textContent = `$${pizzaSales.toFixed(2)}`;
+        
+            // Calcular el total de ventas
+            const totalSales = tlayudaSales + memelaSales + hamburguesaSales + pizzaSales;
+            const totalCell = document.querySelector('tfoot tr td strong');
+            totalCell.textContent = `$${totalSales.toFixed(2)}`;
+        }
+        
+        // Función para manejar el envío del formulario de pedido
+        document.getElementById('order-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+        
+            // Obtener la cantidad vendida de cada producto
+            const tlayudaQuantity = parseInt(document.getElementById('tlayuda-quantity').value) || 0;
+            const memelaQuantity = parseInt(document.getElementById('memela-quantity').value) || 0;
+            const hamburguesaQuantity = parseInt(document.getElementById('hamburguesa-quantity').value) || 0;
+            const pizzaQuantity = parseInt(document.getElementById('pizza-quantity').value) || 0;
+        
+            // Actualizamos las cantidades vendidas
+            tlayudaSales = tlayudaQuantity * tlayudaPrice;
+            memelaSales = memelaQuantity * memelaPrice;
+            hamburguesaSales = hamburguesaQuantity * hamburguesaPrice;
+            pizzaSales = pizzaQuantity * pizzaPrice;
+        
+            // Actualizamos la vista de las cantidades en la tabla
+            document.getElementById('tlayuda-quantity-display').textContent = tlayudaQuantity;
+            document.getElementById('memela-quantity-display').textContent = memelaQuantity;
+            document.getElementById('hamburguesa-quantity-display').textContent = hamburguesaQuantity;
+            document.getElementById('pizza-quantity-display').textContent = pizzaQuantity;
+        
+            // Actualizar la tabla de márgenes y ventas
+            updateMargins();
+            updateTable();
+        });
+    </script>
+</body>
+</html>

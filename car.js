@@ -141,7 +141,7 @@ class Cart {
         // Descargar el PDF con el nombre "ticket.pdf"
         doc.save("ticket.pdf");
 
-          // Mostrar mensaje en pantalla
+        // Mostrar mensaje en pantalla
     const mensajeExito = document.createElement("div");
     mensajeExito.textContent = "¡El pedido se realizó con éxito!";
     mensajeExito.style.position = "fixed";
@@ -159,6 +159,7 @@ class Cart {
     setTimeout(() => {
         document.body.removeChild(mensajeExito);
     }, 3000);
+
     }
 }
 
