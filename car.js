@@ -140,6 +140,25 @@ class Cart {
 
         // Descargar el PDF con el nombre "ticket.pdf"
         doc.save("ticket.pdf");
+
+          // Mostrar mensaje en pantalla
+    const mensajeExito = document.createElement("div");
+    mensajeExito.textContent = "¡El pedido se realizó con éxito!";
+    mensajeExito.style.position = "fixed";
+    mensajeExito.style.top = "20px";
+    mensajeExito.style.right = "20px";
+    mensajeExito.style.padding = "10px 20px";
+    mensajeExito.style.backgroundColor = "green";
+    mensajeExito.style.color = "white";
+    mensajeExito.style.fontSize = "16px";
+    mensajeExito.style.borderRadius = "5px";
+    mensajeExito.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.3)";
+    document.body.appendChild(mensajeExito);
+
+    // Eliminar el mensaje después de 3 segundos
+    setTimeout(() => {
+        document.body.removeChild(mensajeExito);
+    }, 3000);
     }
 }
 
